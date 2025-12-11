@@ -1,0 +1,432 @@
+{
+  "name": "TrainAI - Document Upload FIXED v7 (Workflow Nodes)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "upload-doc-2",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "149b6089-0c46-48f5-84ca-8c552db8d705",
+      "name": "Webhook - Receive Document",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -660,
+        224
+      ],
+      "webhookId": "upload-doc"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all binary field names from the incoming item\nconst binaryKeys = Object.keys($input.item.binary || {});\n\nif (binaryKeys.length === 0) {\n  throw new Error('No binary file received. Make sure you are sending a file.');\n}\n\n// Get the first binary field (whatever it's named)\nconst originalKey = binaryKeys[0];\nconst binaryData = $input.item.binary[originalKey];\n\n// Return item with standardized 'data' binary field\nreturn {\n  json: {\n    ...$input.item.json,\n    originalBinaryField: originalKey\n  },\n  binary: {\n    data: binaryData\n  }\n};"
+      },
+      "id": "normalize-binary-001",
+      "name": "Normalize Binary Field",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.body.timestamp }}_{{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Nvxz72fx1f18rIRe3YqpjYPI4_fB6oor",
+          "mode": "list",
+          "cachedResultName": "Training Materials",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Nvxz72fx1f18rIRe3YqpjYPI4_fB6oor"
+        },
+        "options": {}
+      },
+      "id": "40717992-274f-4a1e-9fdc-77f3df98d953",
+      "name": "Google Drive - Upload File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -180,
+        124
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "JNUhGHHdL2pa0rZa",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-_L_uN_MoR1hyBm-LYpC-8oFirHfwsUpNSd9umkcOW0",
+          "mode": "list",
+          "cachedResultName": "Document Upload Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-_L_uN_MoR1hyBm-LYpC-8oFirHfwsUpNSd9umkcOW0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-_L_uN_MoR1hyBm-LYpC-8oFirHfwsUpNSd9umkcOW0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $('Webhook - Receive Document').item.json.body.timestamp }}",
+            "File Name": "={{ $('Webhook - Receive Document').item.json.body.timestamp }}_{{ $('Normalize Binary Field').item.binary.data.fileName }}",
+            "Category": "={{ $('Webhook - Receive Document').item.json.body.category }}",
+            "Drive Link": "={{ $json.webViewLink }}",
+            "Employee Name": "={{ $json.lastModifyingUser.displayName }}",
+            "Status": "Processed"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee Name",
+              "displayName": "Employee Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Drive Link",
+              "displayName": "Drive Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0c48e1a9-c459-4907-8c76-2b9a815a7e8d",
+      "name": "Google Sheets - Log Upload",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        40,
+        124
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6e7KdTxkOJHDJfQK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/convai/knowledge-base/file",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "elevenLabsApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "parameterType": "formData",
+              "name": "name",
+              "value": "={{ $('Normalize Binary Field').item.binary.data.fileName }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "55d5e94a-2d81-4714-baeb-f98e9b19a97d",
+      "name": "ElevenLabs - Upload to KB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        324
+      ],
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "2791RLBzu8NVlvcW",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.elevenlabs.io/v1/convai/agents/agent_0601kc1myyxaevys9hw79f1xwpsf",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "elevenLabsApi",
+        "options": {}
+      },
+      "id": "get-agent-001",
+      "name": "ElevenLabs - Get Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        40,
+        324
+      ],
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "2791RLBzu8NVlvcW",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ============================================\n// AUTO-UPDATE ALL WORKFLOW NODES\n// All override_agent nodes will receive uploaded docs\n// Only exclude nodes explicitly listed below\n// ============================================\nconst EXCLUDE_NODES = [\n  // Add node IDs here if you want to exclude specific nodes\n  // 'node_xxxxx' \n];\n// ============================================\n\n// Get the new document info\nconst newDocId = $('ElevenLabs - Upload to KB').item.json.id;\nconst newDocName = $('ElevenLabs - Upload to KB').item.json.name;\n\n// Get the current agent data\nconst agentData = $input.item.json;\n\n// New document object\nconst newDocObject = {\n  type: \"file\",\n  id: newDocId,\n  name: newDocName,\n  usage_mode: \"auto\"\n};\n\n// ============================================\n// 1. UPDATE BASE KNOWLEDGE BASE\n// ============================================\nlet currentBaseKB = agentData.conversation_config?.agent?.prompt?.knowledge_base || [];\n\n// Check for duplicates in base KB\nconst existingInBase = currentBaseKB.findIndex(doc => doc.id === newDocId || doc.name === newDocName);\nlet updatedBaseKB;\nif (existingInBase >= 0) {\n  updatedBaseKB = [...currentBaseKB];\n  updatedBaseKB[existingInBase] = newDocObject;\n} else {\n  updatedBaseKB = [...currentBaseKB, newDocObject];\n}\n\n// ============================================\n// 2. UPDATE ALL WORKFLOW NODES' additional_knowledge_base\n// ============================================\nconst workflow = agentData.workflow;\nlet updatedNodes = {};\nlet nodesUpdated = [];\nlet nodesSkipped = [];\n\nif (workflow && workflow.nodes) {\n  for (const [nodeName, nodeData] of Object.entries(workflow.nodes)) {\n    // Skip non-agent nodes (start, end, tool nodes)\n    if (nodeData.type !== 'override_agent') {\n      nodesSkipped.push({ nodeName, reason: 'not override_agent', type: nodeData.type });\n      continue;\n    }\n    \n    // Skip explicitly excluded nodes\n    if (EXCLUDE_NODES.includes(nodeName)) {\n      nodesSkipped.push({ nodeName, label: nodeData.label, reason: 'explicitly excluded' });\n      continue;\n    }\n    \n    // Get current additional_knowledge_base for this node\n    let currentNodeKB = nodeData.additional_knowledge_base || [];\n    \n    // Check for duplicates in this node's KB\n    const existingInNode = currentNodeKB.findIndex(doc => doc.id === newDocId || doc.name === newDocName);\n    \n    let updatedNodeKB;\n    if (existingInNode >= 0) {\n      updatedNodeKB = [...currentNodeKB];\n      updatedNodeKB[existingInNode] = newDocObject;\n    } else {\n      updatedNodeKB = [...currentNodeKB, newDocObject];\n    }\n    \n    // Only include the additional_knowledge_base in the update\n    updatedNodes[nodeName] = {\n      additional_knowledge_base: updatedNodeKB\n    };\n    \n    nodesUpdated.push({\n      nodeName: nodeName,\n      label: nodeData.label || nodeName,\n      previousCount: currentNodeKB.length,\n      newCount: updatedNodeKB.length\n    });\n  }\n}\n\n// ============================================\n// 3. BUILD THE PATCH PAYLOAD\n// ============================================\nconst patchPayload = {\n  // Update base agent KB\n  conversation_config: {\n    agent: {\n      prompt: {\n        knowledge_base: updatedBaseKB\n      }\n    }\n  }\n};\n\n// Only include workflow update if we have nodes to update\nif (Object.keys(updatedNodes).length > 0) {\n  patchPayload.workflow = {\n    nodes: updatedNodes\n  };\n}\n\n// Return for next node\nreturn {\n  json: {\n    patchPayload: patchPayload,\n    debug: {\n      newDocId: newDocId,\n      newDocName: newDocName,\n      baseKB: {\n        previous: currentBaseKB.length,\n        updated: updatedBaseKB.length\n      },\n      workflowNodes: {\n        totalNodes: workflow ? Object.keys(workflow.nodes).length : 0,\n        agentNodesUpdated: nodesUpdated.length,\n        nodesSkipped: nodesSkipped.length,\n        updatedDetails: nodesUpdated,\n        skippedDetails: nodesSkipped\n      }\n    }\n  }\n};"
+      },
+      "id": "build-patch-001",
+      "name": "Build Agent + Workflow Patch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        324
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "https://api.elevenlabs.io/v1/convai/agents/agent_0601kc1myyxaevys9hw79f1xwpsf",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "elevenLabsApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.patchPayload) }}",
+        "options": {}
+      },
+      "id": "patch-agent-001",
+      "name": "ElevenLabs - Patch Agent + Nodes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        324
+      ],
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "2791RLBzu8NVlvcW",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "id": "merge-node-001",
+      "name": "Wait for Both",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        700,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Document uploaded and linked to agent + workflow nodes\",\n  \"fileName\": \"{{ $('Normalize Binary Field').item.binary.data.fileName }}\",\n  \"driveLink\": \"{{ $('Google Drive - Upload File').item.json.webViewLink }}\",\n  \"knowledgeBaseDocId\": \"{{ $('ElevenLabs - Upload to KB').item.json.id }}\",\n  \"debug\": {{ JSON.stringify($('Build Agent + Workflow Patch').item.json.debug) }}\n}",
+        "options": {}
+      },
+      "id": "cac7fa51-1651-4918-b082-ee89579b4c92",
+      "name": "Respond - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        920,
+        224
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Receive Document": {
+      "main": [
+        [
+          {
+            "node": "Normalize Binary Field",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Binary Field": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Upload File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ElevenLabs - Upload to KB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Upload File": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Log Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Log Upload": {
+      "main": [
+        [
+          {
+            "node": "Wait for Both",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs - Upload to KB": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs - Get Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs - Get Agent": {
+      "main": [
+        [
+          {
+            "node": "Build Agent + Workflow Patch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Agent + Workflow Patch": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs - Patch Agent + Nodes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs - Patch Agent + Nodes": {
+      "main": [
+        [
+          {
+            "node": "Wait for Both",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Wait for Both": {
+      "main": [
+        [
+          {
+            "node": "Respond - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "v7-workflow-nodes",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "676d1e6b8c7b69d16e6ad71e7d7a5295691c479281468fe3f70ca312fddf33fa"
+  },
+  "id": "iwuclTnejKiKM3qH",
+  "tags": []
+}

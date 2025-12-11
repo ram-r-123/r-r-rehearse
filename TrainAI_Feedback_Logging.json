@@ -1,0 +1,286 @@
+{
+  "name": "TrainAI - Feedback Logging",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "log-feedback",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-feedback",
+      "name": "Webhook - Receive Feedback",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "log-feedback"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get input data from subagent\nconst input = $input.item.json;\n\n// Available scenarios for recommendations\nconst SCENARIOS = [\n  { id: 'angry-customer', name: 'Angry Customer', difficulty: 'medium', skills: ['empathy', 'de-escalation', 'problem-solving', 'patience'] },\n  { id: 'sales-call', name: 'Sales Prospect', difficulty: 'hard', skills: ['persuasion', 'objection-handling', 'closing', 'value-proposition'] },\n  { id: 'product-qa', name: 'Product Expert', difficulty: 'easy', skills: ['product-knowledge', 'communication', 'accuracy', 'confidence'] },\n  // Add more scenarios here as they're created\n  { id: 'refund-request', name: 'Refund Request', difficulty: 'medium', skills: ['policy-knowledge', 'negotiation', 'empathy', 'de-escalation'] },\n  { id: 'technical-support', name: 'Technical Support', difficulty: 'hard', skills: ['technical-knowledge', 'patience', 'problem-solving', 'communication'] },\n  { id: 'new-customer', name: 'New Customer Onboarding', difficulty: 'easy', skills: ['product-knowledge', 'enthusiasm', 'clarity', 'rapport-building'] }\n];\n\n// Parse areas of improvement to suggest relevant scenarios\nconst areasOfImprovement = (input.areas_of_improvement || '').toLowerCase();\nconst currentScenarioId = input.scenario_id || '';\n\n// Find scenarios that match improvement areas (simple keyword matching)\nlet recommendedScenarios = [];\n\nSCENARIOS.forEach(scenario => {\n  if (scenario.id === currentScenarioId) return; // Don't recommend same scenario\n  \n  const skillMatch = scenario.skills.some(skill => \n    areasOfImprovement.includes(skill) || \n    areasOfImprovement.includes(skill.replace('-', ' '))\n  );\n  \n  if (skillMatch) {\n    recommendedScenarios.push(scenario.name);\n  }\n});\n\n// If no matches, suggest based on difficulty progression\nif (recommendedScenarios.length === 0) {\n  const currentDifficulty = input.difficulty || 'medium';\n  const nextScenario = SCENARIOS.find(s => \n    s.id !== currentScenarioId && s.difficulty === currentDifficulty\n  );\n  if (nextScenario) {\n    recommendedScenarios.push(nextScenario.name);\n  }\n}\n\n// Limit to top 2 recommendations\nconst recommended = recommendedScenarios.slice(0, 2).join(', ') || 'Product Expert';\n\nreturn {\n  json: {\n    // For Sheet 2 (Feedback)\n    SessionID: input.session_id || 'UNKNOWN',\n    Superpower_strength: input.superpower || '',\n    Areas_of_improvement: input.areas_of_improvement || '',\n    Recommended_scenarios: input.recommended_scenarios || recommended,\n    Feedback_timestamp: new Date().toISOString(),\n    \n    // For updating Sheet 1\n    scenario_id: input.scenario_id || '',\n    employee_name: input.employee_name || ''\n  }\n};"
+      },
+      "id": "process-feedback",
+      "name": "Process Feedback & Generate Recommendations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s",
+          "mode": "list",
+          "cachedResultName": "Training Sessions Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Feedback",
+          "mode": "list",
+          "cachedResultName": "Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit#gid=1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SessionID": "={{ $json.SessionID }}",
+            "Superpower_strength": "={{ $json.Superpower_strength }}",
+            "Areas_of_improvement": "={{ $json.Areas_of_improvement }}",
+            "Recommended_scenarios": "={{ $json.Recommended_scenarios }}",
+            "Feedback_timestamp": "={{ $json.Feedback_timestamp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "SessionID",
+              "displayName": "SessionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Superpower_strength",
+              "displayName": "Superpower_strength",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Areas_of_improvement",
+              "displayName": "Areas_of_improvement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended_scenarios",
+              "displayName": "Recommended_scenarios",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feedback_timestamp",
+              "displayName": "Feedback_timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "sheets-log-feedback",
+      "name": "Google Sheets - Log Feedback (Sheet 2)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6e7KdTxkOJHDJfQK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s",
+          "mode": "list",
+          "cachedResultName": "Training Sessions Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sessions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SessionID": "={{ $('Process Feedback & Generate Recommendations').item.json.SessionID }}",
+            "Superpower": "={{ $('Process Feedback & Generate Recommendations').item.json.Superpower_strength }}",
+            "Areas_of_improvement": "={{ $('Process Feedback & Generate Recommendations').item.json.Areas_of_improvement }}",
+            "Recommended_scenarios": "={{ $('Process Feedback & Generate Recommendations').item.json.Recommended_scenarios }}"
+          },
+          "matchingColumns": ["SessionID"],
+          "schema": [
+            {
+              "id": "SessionID",
+              "displayName": "SessionID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Superpower",
+              "displayName": "Superpower",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Areas_of_improvement",
+              "displayName": "Areas_of_improvement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended_scenarios",
+              "displayName": "Recommended_scenarios",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "sheets-update-session",
+      "name": "Google Sheets - Update Session (Sheet 1)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        660,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6e7KdTxkOJHDJfQK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Feedback logged and session updated\",\n  \"session_id\": \"{{ $('Process Feedback & Generate Recommendations').item.json.SessionID }}\",\n  \"recommended_scenarios\": \"{{ $('Process Feedback & Generate Recommendations').item.json.Recommended_scenarios }}\"\n}",
+        "options": {}
+      },
+      "id": "respond-feedback-success",
+      "name": "Respond - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Receive Feedback": {
+      "main": [
+        [
+          {
+            "node": "Process Feedback & Generate Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Feedback & Generate Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Log Feedback (Sheet 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Log Feedback (Sheet 2)": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Update Session (Sheet 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Update Session (Sheet 1)": {
+      "main": [
+        [
+          {
+            "node": "Respond - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "feedback-log-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "676d1e6b8c7b69d16e6ad71e7d7a5295691c479281468fe3f70ca312fddf33fa"
+  },
+  "id": "feedback-workflow",
+  "tags": []
+}

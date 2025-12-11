@@ -1,0 +1,150 @@
+{
+  "name": "TrainAI - Get Recommendations",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "get-recommendations",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-get-recs",
+      "name": "Webhook - Get Recommendations",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "get-recommendations"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s",
+          "mode": "list",
+          "cachedResultName": "Training Sessions Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Feedback",
+          "mode": "list",
+          "cachedResultName": "Feedback",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit#gid=1"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "FORMATTED_VALUE"
+            }
+          }
+        }
+      },
+      "id": "sheets-read-feedback",
+      "name": "Google Sheets - Read Feedback",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6e7KdTxkOJHDJfQK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all feedback items\nconst items = $input.all();\n\n// Get query parameter for employee name (optional filter)\nconst employeeFilter = $('Webhook - Get Recommendations').item.json.query?.employee_name || null;\n\n// Sort by timestamp descending to get most recent\nconst sortedItems = items\n  .map(item => item.json)\n  .filter(item => item.SessionID) // Only items with valid session ID\n  .sort((a, b) => {\n    const dateA = new Date(a.Feedback_timestamp || 0);\n    const dateB = new Date(b.Feedback_timestamp || 0);\n    return dateB - dateA;\n  });\n\n// Get the most recent feedback entry\nconst latestFeedback = sortedItems[0] || null;\n\n// Calculate improvement trends (count mentions of each area)\nconst improvementCounts = {};\nsortedItems.slice(0, 10).forEach(item => {\n  const areas = (item.Areas_of_improvement || '').toLowerCase();\n  ['empathy', 'communication', 'product-knowledge', 'closing', 'de-escalation', 'patience', 'confidence'].forEach(skill => {\n    if (areas.includes(skill) || areas.includes(skill.replace('-', ' '))) {\n      improvementCounts[skill] = (improvementCounts[skill] || 0) + 1;\n    }\n  });\n});\n\n// Find most common improvement area\nconst topImprovement = Object.entries(improvementCounts)\n  .sort((a, b) => b[1] - a[1])[0];\n\n// Scenario mapping for display\nconst SCENARIO_MAP = {\n  'angry-customer': { name: 'Angry Customer', icon: '😤', difficulty: 'medium' },\n  'sales-call': { name: 'Sales Prospect', icon: '💼', difficulty: 'hard' },\n  'product-qa': { name: 'Product Expert', icon: '❓', difficulty: 'easy' },\n  'refund-request': { name: 'Refund Request', icon: '💸', difficulty: 'medium' },\n  'technical-support': { name: 'Technical Support', icon: '🔧', difficulty: 'hard' },\n  'new-customer': { name: 'New Customer Onboarding', icon: '👋', difficulty: 'easy' }\n};\n\n// Parse recommended scenarios to get details\nconst recommendedNames = latestFeedback?.Recommended_scenarios?.split(',').map(s => s.trim()) || [];\nconst recommendedScenarios = recommendedNames.map(name => {\n  const entry = Object.entries(SCENARIO_MAP).find(([id, data]) => data.name === name);\n  if (entry) {\n    return { id: entry[0], ...entry[1] };\n  }\n  return { id: name.toLowerCase().replace(/\\s+/g, '-'), name: name, icon: '📋', difficulty: 'medium' };\n});\n\nreturn {\n  json: {\n    success: true,\n    latest_session_id: latestFeedback?.SessionID || null,\n    superpower: latestFeedback?.Superpower_strength || null,\n    areas_of_improvement: latestFeedback?.Areas_of_improvement || null,\n    recommended_scenarios: recommendedScenarios,\n    top_improvement_area: topImprovement ? topImprovement[0] : null,\n    total_feedback_entries: sortedItems.length,\n    last_updated: latestFeedback?.Feedback_timestamp || null\n  }\n};"
+      },
+      "id": "process-recommendations",
+      "name": "Process Recommendations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "GET, OPTIONS"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-recommendations",
+      "name": "Respond - Recommendations",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Get Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Read Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Read Feedback": {
+      "main": [
+        [
+          {
+            "node": "Process Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Respond - Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "get-recs-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "676d1e6b8c7b69d16e6ad71e7d7a5295691c479281468fe3f70ca312fddf33fa"
+  },
+  "id": "get-recommendations-workflow",
+  "tags": []
+}

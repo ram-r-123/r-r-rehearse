@@ -1,0 +1,271 @@
+{
+  "name": "TrainAI - Session Logging (Updated)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "log-session",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-receive-session",
+      "name": "Webhook - Receive Session",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "log-session"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate a unique Session ID\nconst timestamp = Date.now();\nconst randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();\nconst sessionId = `S${timestamp}-${randomPart}`;\n\n// Get input data\nconst input = $input.item.json;\n\n// Return formatted data for Sheet 1\nreturn {\n  json: {\n    SessionID: sessionId,\n    Timestamp: input.timestamp || new Date().toISOString(),\n    \"Employee Name\": input.employee_name || 'Unknown',\n    Scenario: input.scenario || '',\n    ScenarioID: input.scenario_id || '',\n    Difficulty: input.difficulty || '',\n    Duration: input.duration || '',\n    \"Duration (Minutes)\": input.duration_minutes || 0,\n    Date: input.date || new Date().toLocaleDateString(),\n    Time: input.time || new Date().toLocaleTimeString(),\n    // These will be filled by feedback subagent later\n    Superpower: '',\n    Areas_of_improvement: '',\n    Recommended_scenarios: ''\n  }\n};"
+      },
+      "id": "generate-session-id",
+      "name": "Generate Session ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s",
+          "mode": "list",
+          "cachedResultName": "Training Sessions Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sessions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SB3QsmZQwD62xjjkv5abD0sHDWudujzA0eSNTX4uW3s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SessionID": "={{ $json.SessionID }}",
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Employee Name": "={{ $json[\"Employee Name\"] }}",
+            "Scenario": "={{ $json.Scenario }}",
+            "ScenarioID": "={{ $json.ScenarioID }}",
+            "Difficulty": "={{ $json.Difficulty }}",
+            "Duration": "={{ $json.Duration }}",
+            "Duration (Minutes)": "={{ $json[\"Duration (Minutes)\"] }}",
+            "Date": "={{ $json.Date }}",
+            "Time": "={{ $json.Time }}",
+            "Superpower": "={{ $json.Superpower }}",
+            "Areas_of_improvement": "={{ $json.Areas_of_improvement }}",
+            "Recommended_scenarios": "={{ $json.Recommended_scenarios }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "SessionID",
+              "displayName": "SessionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee Name",
+              "displayName": "Employee Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Scenario",
+              "displayName": "Scenario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScenarioID",
+              "displayName": "ScenarioID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Difficulty",
+              "displayName": "Difficulty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Duration",
+              "displayName": "Duration",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Duration (Minutes)",
+              "displayName": "Duration (Minutes)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Superpower",
+              "displayName": "Superpower",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Areas_of_improvement",
+              "displayName": "Areas_of_improvement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended_scenarios",
+              "displayName": "Recommended_scenarios",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "sheets-log-session",
+      "name": "Google Sheets - Log Session",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6e7KdTxkOJHDJfQK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Session logged successfully\",\n  \"session_id\": \"{{ $('Generate Session ID').item.json.SessionID }}\"\n}",
+        "options": {}
+      },
+      "id": "respond-success",
+      "name": "Respond - Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Receive Session": {
+      "main": [
+        [
+          {
+            "node": "Generate Session ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Session ID": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Log Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Log Session": {
+      "main": [
+        [
+          {
+            "node": "Respond - Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "session-log-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "676d1e6b8c7b69d16e6ad71e7d7a5295691c479281468fe3f70ca312fddf33fa"
+  },
+  "id": "yAycbFqEZrnm2W0s",
+  "tags": []
+}
