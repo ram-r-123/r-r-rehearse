@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rehearse - AI Employee Training Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #eef2ff;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--slate-50);
+            min-height: 100vh;
+            color: var(--slate-800);
+            line-height: 1.5;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--slate-900);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--slate-600);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .nav-links a:hover {
+            background: var(--slate-100);
+            color: var(--slate-900);
+        }
+
+        .nav-links a.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .employee-badge {
+            background: var(--slate-100);
+            color: var(--slate-700);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--slate-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--slate-500);
+            font-size: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--slate-200);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--slate-900);
+        }
+
+        .card-header p {
+            color: var(--slate-500);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Scenario Grid */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .scenario-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scenario-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .scenario-card .icon {
+            width: 48px;
+            height: 48px;
+            background: var(--slate-100);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .scenario-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--slate-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .scenario-card p {
+            color: var(--slate-500);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .difficulty-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .difficulty-easy { 
+            background: var(--success-light); 
+            color: #065f46; 
+        }
+        .difficulty-medium { 
+            background: var(--warning-light); 
+            color: #92400e; 
+        }
+        .difficulty-hard { 
+            background: var(--danger-light); 
+            color: #991b1b; 
+        }
+
+        /* Practice Session */
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--slate-200);
+            margin-bottom: 1.5rem;
+        }
+
+        .session-info {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .session-info h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .timer {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .timer::before {
+            content: "⏱";
+        }
+
+        .session-container {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .session-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .agent-panel {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .agent-avatar {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .agent-panel h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--slate-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-panel .hint {
+            color: var(--slate-500);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .tips-panel {
+            background: var(--warning-light);
+            border: 1px solid #fcd34d;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .tips-panel h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tips-panel ul {
+            list-style: none;
+        }
+
+        .tips-panel li {
+            color: #78350f;
+            font-size: 0.875rem;
+            padding: 0.5rem 0;
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        .tips-panel li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #d97706;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--slate-300);
+            color: var(--slate-700);
+        }
+
+        .btn-outline:hover {
+            background: var(--slate-50);
+            border-color: var(--slate-400);
+        }
+
+        /* Analytics Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card p {
+            color: var(--slate-500);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Session History */
+        .session-item {
+            background: var(--slate-50);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .session-item {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .session-item-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .session-item-label {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.125rem;
+        }
+
+        .session-item-value {
+            font-weight: 500;
+            color: var(--slate-800);
+            font-size: 0.9rem;
+        }
+
+        /* Upload Section */
+        .upload-zone {
+            border: 2px dashed var(--slate-300);
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: var(--slate-50);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .upload-zone h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--slate-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-zone p {
+            color: var(--slate-500);
+            font-size: 0.875rem;
+        }
+
+        /* Category Select */
+        .form-group {
+            margin-top: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--slate-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--slate-300);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--slate-800);
+            background: white;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .status-message.show {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-success {
+            background: var(--success-light);
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .status-error {
+            background: var(--danger-light);
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-info {
+            background: var(--primary-light);
+            color: #3730a3;
+            border: 1px solid #a5b4fc;
+        }
+
+        /* Uploaded Files List */
+        .uploaded-files {
+            margin-top: 1.5rem;
+        }
+
+        .uploaded-files h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--slate-700);
+            margin-bottom: 0.75rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--slate-50);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .file-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--slate-800);
+        }
+
+        .file-meta {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            color: var(--slate-400);
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .file-remove:hover {
+            color: var(--danger);
+            background: var(--danger-light);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid var(--slate-200);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--slate-500);
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* Demo Mode Badge */
+        .demo-badge {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--slate-800);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        .demo-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">
+            <div class="logo-icon">✵</div>
+            Rehearse
+        </div>
+        <div class="nav-links">
+            <a id="nav-dashboard" class="active" onclick="showSection('dashboard')">Dashboard</a>
+            <a id="nav-upload" onclick="showSection('upload')">Upload</a>
+            <a id="nav-analytics" onclick="showSection('analytics')">Analytics</a>
+            <span class="employee-badge" id="employee-name">Demo User</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="page-header">
+                <h1>Training Dashboard</h1>
+                <p>Practice real workplace scenarios with your AI training partner</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Choose Your Training Scenario</h2>
+                    <p>Select a scenario to begin practicing</p>
+                </div>
+                <div class="scenario-grid">
+                    <!-- Angry Customer -->
+                    <div class="scenario-card" onclick="startScenario('angry-customer', 'Angry Customer', '😤', 'medium')">
+                        <div class="icon">😤</div>
+                        <h3>Angry Customer</h3>
+                        <p>Practice handling complaints, de-escalation techniques, and turning negative experiences positive.</p>
+                        <span class="difficulty-badge difficulty-medium">Medium</span>
+                    </div>
+
+                    <!-- Sales Call -->
+                    <div class="scenario-card" onclick="startScenario('sales-call', 'Sales Prospect', '💼', 'hard')">
+                        <div class="icon">💼</div>
+                        <h3>Sales Prospect</h3>
+                        <p>Master your pitch, handle objections, and close deals with skeptical prospects.</p>
+                        <span class="difficulty-badge difficulty-hard">Hard</span>
+                    </div>
+
+                    <!-- Product Knowledge -->
+                    <div class="scenario-card" onclick="startScenario('product-qa', 'Product Expert', '❓', 'easy')">
+                        <div class="icon">❓</div>
+                        <h3>Product Expert Test</h3>
+                        <p>Answer detailed questions about products, features, and specifications.</p>
+                        <span class="difficulty-badge difficulty-easy">Easy</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Session Section -->
+        <section id="practice-session" class="section">
+            <div class="card">
+                <div class="session-header">
+                    <div class="session-info">
+                        <h2 id="session-scenario-title">Training Session</h2>
+                        <div class="timer">
+                            <span id="session-timer">00:00</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="endSession()">End Session</button>
+                </div>
+
+                <div class="session-container">
+                    <!-- Agent Panel -->
+                    <div class="agent-panel">
+                        <div class="agent-avatar" id="agent-avatar">🤖</div>
+                        <h3>AI Training Partner</h3>
+                        
+                        <!-- ELEVENLABS WIDGET -->
+                        <elevenlabs-convai agent-id="agent_0601kc1myyxaevys9hw79f1xwpsf"></elevenlabs-convai>
+                        
+                        <p class="hint">Click the microphone to start practicing</p>
+                    </div>
+
+                    <!-- Tips Panel -->
+                    <div class="tips-panel">
+                        <h3>💡 Session Tips</h3>
+                        <ul id="scenario-tips">
+                            <!-- Dynamically populated -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upload Materials Section -->
+        <section id="upload" class="section">
+            <div class="page-header">
+                <h1>Upload Training Materials</h1>
+                <p>Add documents to enhance your AI training partner's knowledge</p>
+            </div>
+
+            <div class="card">
+                <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-icon">📄</div>
+                    <h3>Click to upload or drag and drop</h3>
+                    <p>PDF, DOCX, TXT up to 10MB</p>
+                    <input type="file" id="file-input" style="display: none;" accept=".pdf,.docx,.txt" onchange="handleFileUpload(event)">
+                </div>
+
+                <div id="upload-status" class="status-message"></div>
+
+                <div class="form-group">
+                    <label for="doc-category">Document Category</label>
+                    <select id="doc-category" class="form-select">
+                        <option value="product">Product Information</option>
+                        <option value="policy">Company Policies</option>
+                        <option value="sales">Sales Scripts</option>
+                        <option value="faq">FAQ Database</option>
+                        <option value="manual">Training Manual</option>
+                    </select>
+                </div>
+
+                <!-- Uploaded Files List -->
+                <div class="uploaded-files" id="uploaded-files-container">
+                    <h4>Uploaded Documents</h4>
+                    <div id="uploaded-files-list">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="section">
+            <div class="page-header">
+                <h1>Training Analytics</h1>
+                <p>Track your progress and training history</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="total-sessions">0</h3>
+                    <p>Total Sessions</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="total-time">0m</h3>
+                    <p>Training Time</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avg-duration">0m</h3>
+                    <p>Avg Session</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="scenarios-completed">0</h3>
+                    <p>Scenarios</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Recent Sessions</h2>
+                </div>
+                <div id="session-history-list">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Demo Mode Badge -->
+    <div class="demo-badge">Demo Mode</div>
+
+    <!-- ElevenLabs Widget Script -->
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed@beta" async type="text/javascript"></script>
+
+    <!-- Configuration -->
+    <script>
+        window.N8N_CONFIG = {
+            // PRODUCTION URLs (no -test) - these work when workflow is Active
+            SESSION_LOG_WEBHOOK: 'https://pinkraccoon.app.n8n.cloud/webhook/log-session',
+            DOC_UPLOAD_WEBHOOK: 'https://pinkraccoon.app.n8n.cloud/webhook/upload-doc-2',
+        };
+
+        window.EMPLOYEE_CONFIG = {
+            defaultName: 'Demo User',
+            enableNameChange: true
+        };
+
+        // Demo mode - set to false to use n8n backend
+        window.DEMO_MODE = false;
+    </script>
+
+    <!-- Main Application Script -->
+    <script>
+        // Application State
+        let currentSession = {
+            scenario: '',
+            scenarioTitle: '',
+            startTime: null,
+            timerInterval: null
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmployeeName();
+            loadAnalytics();
+            loadUploadedFiles();
+            setupDragAndDrop();
+        });
+
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update nav
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            const navLink = document.getElementById('nav-' + sectionId);
+            if (navLink) navLink.classList.add('active');
+
+            // Load analytics when viewing that section
+            if (sectionId === 'analytics') {
+                loadAnalytics();
+            }
+            if (sectionId === 'upload') {
+                loadUploadedFiles();
+            }
+        }
+
+        // Load employee name
+        function loadEmployeeName() {
+            const name = localStorage.getItem('employeeName') || window.EMPLOYEE_CONFIG.defaultName;
+            document.getElementById('employee-name').textContent = name;
+        }
+
+        // Start Training Session
+        function startScenario(scenarioId, title, icon, difficulty) {
+            currentSession = {
+                scenario: scenarioId,
+                scenarioTitle: title,
+                scenarioIcon: icon,
+                difficulty: difficulty,
+                startTime: new Date()
+            };
+
+            // Update UI
+            document.getElementById('session-scenario-title').textContent = title;
+            document.getElementById('agent-avatar').textContent = icon;
+
+            // Load scenario-specific tips
+            loadScenarioTips(scenarioId);
+
+            // Start timer
+            startTimer();
+
+            // Show practice session
+            showSection('practice-session');
+        }
+
+        // Session Timer
+        function startTimer() {
+            let seconds = 0;
+            currentSession.timerInterval = setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('session-timer').textContent = 
+                    `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (currentSession.timerInterval) {
+                clearInterval(currentSession.timerInterval);
+            }
+        }
+
+        // Load Scenario Tips
+        function loadScenarioTips(scenarioId) {
+            const tips = {
+                'angry-customer': [
+                    'Start with empathy and acknowledgment',
+                    'Listen actively without interrupting',
+                    'Take ownership of the issue',
+                    'Offer specific solutions with timelines',
+                    'End with follow-up commitment'
+                ],
+                'sales-call': [
+                    'Ask qualifying questions first',
+                    'Listen for pain points',
+                    'Focus on value, not price',
+                    'Handle objections with evidence',
+                    'Always close with clear next steps'
+                ],
+                'product-qa': [
+                    'Answer confidently or admit gaps',
+                    'Use specific examples',
+                    'Reference documentation when needed',
+                    'Ask clarifying questions',
+                    'Follow up on uncertainties'
+                ]
+            };
+
+            const tipsList = tips[scenarioId] || [];
+            const tipsContainer = document.getElementById('scenario-tips');
+            tipsContainer.innerHTML = tipsList.map(tip => `<li>${tip}</li>`).join('');
+        }
+
+        // End Session
+        async function endSession() {
+            stopTimer();
+
+            const duration = Math.round((new Date() - currentSession.startTime) / 1000 / 60);
+
+            // Prepare session data
+            const sessionData = {
+                employee_name: document.getElementById('employee-name').textContent,
+                scenario: currentSession.scenarioTitle,
+                scenario_id: currentSession.scenario,
+                difficulty: currentSession.difficulty,
+                duration: `${duration} min`,
+                duration_minutes: duration,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString()
+            };
+
+            // Log to N8N (only if not in demo mode)
+            if (!window.DEMO_MODE) {
+                await logSessionToN8N(sessionData);
+            }
+
+            // Save locally
+            saveSessionLocally(sessionData);
+
+            // Show success message
+            alert('✅ Session completed!\n\nGreat work! Your training session has been recorded.');
+
+            // Return to dashboard
+            showSection('dashboard');
+        }
+
+        // Log Session to N8N
+        async function logSessionToN8N(sessionData) {
+            try {
+                const response = await fetch(window.N8N_CONFIG.SESSION_LOG_WEBHOOK, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(sessionData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to log session');
+                }
+
+                console.log('✅ Session logged to N8N successfully');
+            } catch (error) {
+                console.error('❌ Error logging to N8N:', error);
+            }
+        }
+
+        // Save Session Locally
+        function saveSessionLocally(sessionData) {
+            let sessions = JSON.parse(localStorage.getItem('trainingSessions') || '[]');
+            sessions.unshift(sessionData);
+            sessions = sessions.slice(0, 50);
+            localStorage.setItem('trainingSessions', JSON.stringify(sessions));
+        }
+
+        // Load Analytics
+        function loadAnalytics() {
+            const sessions = JSON.parse(localStorage.getItem('trainingSessions') || '[]');
+
+            // Calculate stats
+            const totalSessions = sessions.length;
+            const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration_minutes || 0), 0);
+            const avgDuration = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+            const uniqueScenarios = new Set(sessions.map(s => s.scenario_id)).size;
+
+            // Update stats
+            document.getElementById('total-sessions').textContent = totalSessions;
+            document.getElementById('total-time').textContent = `${totalMinutes}m`;
+            document.getElementById('avg-duration').textContent = `${avgDuration}m`;
+            document.getElementById('scenarios-completed').textContent = uniqueScenarios;
+
+            // Display session history
+            const historyContainer = document.getElementById('session-history-list');
+            
+            if (sessions.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No training sessions yet. Start your first session!</p>
+                    </div>
+                `;
+            } else {
+                historyContainer.innerHTML = sessions.slice(0, 10).map(session => `
+                    <div class="session-item">
+                        <div class="session-item-info">
+                            <span class="session-item-label">Scenario</span>
+                            <span class="session-item-value">${session.scenario}</span>
+                        </div>
+                        <div class="session-item-info">
+                            <span class="session-item-label">Duration</span>
+                            <span class="session-item-value">${session.duration}</span>
+                        </div>
+                        <div class="session-item-info">
+                            <span class="session-item-label">Date</span>
+                            <span class="session-item-value">${session.date}</span>
+                        </div>
+                        <span class="difficulty-badge difficulty-${session.difficulty}">${session.difficulty}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // File Upload
+        function setupDragAndDrop() {
+            const uploadZone = document.getElementById('upload-zone');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => {
+                    uploadZone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => {
+                    uploadZone.classList.remove('dragover');
+                }, false);
+            });
+
+            uploadZone.addEventListener('drop', handleDrop, false);
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                handleFileUpload({ target: { files: files } });
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.className = 'status-message show status-info';
+            statusDiv.innerHTML = '<div class="spinner"></div> Processing document...';
+
+            const category = document.getElementById('doc-category').value;
+
+            // Demo mode: save locally
+            if (window.DEMO_MODE) {
+                // Simulate processing delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Save file info locally
+                const fileData = {
+                    id: Date.now(),
+                    name: file.name,
+                    size: file.size,
+                    category: category,
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toLocaleDateString()
+                };
+
+                let uploadedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+                uploadedFiles.unshift(fileData);
+                localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+
+                statusDiv.className = 'status-message show status-success';
+                statusDiv.innerHTML = `✅ "${file.name}" uploaded successfully`;
+
+                // Refresh file list
+                loadUploadedFiles();
+
+                // Reset file input
+                document.getElementById('file-input').value = '';
+
+                // Hide message after 4 seconds
+                setTimeout(() => {
+                    statusDiv.classList.remove('show');
+                }, 4000);
+
+                return;
+            }
+
+            // Non-demo mode: try to send to n8n
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('category', category);
+            formData.append('employee_name', document.getElementById('employee-name').textContent);
+            formData.append('timestamp', new Date().toISOString());
+
+            try {
+                const response = await fetch(window.N8N_CONFIG.DOC_UPLOAD_WEBHOOK, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+                }
+
+                // Try to get response data
+                let responseData;
+                try {
+                    responseData = await response.json();
+                } catch (e) {
+                    responseData = { success: true };
+                }
+
+                statusDiv.className = 'status-message show status-success';
+                statusDiv.innerHTML = `✅ "${file.name}" uploaded to Google Drive!`;
+
+                // Also save locally for tracking
+                const fileData = {
+                    id: Date.now(),
+                    name: file.name,
+                    size: file.size,
+                    category: category,
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toLocaleDateString()
+                };
+                let uploadedFiles = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+                uploadedFiles.unshift(fileData);
+                localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+                loadUploadedFiles();
+
+                document.getElementById('file-input').value = '';
+
+                setTimeout(() => {
+                    statusDiv.classList.remove('show');
+                }, 4000);
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                
+                let errorMessage = error.message;
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Cannot reach n8n server. Check that your workflow is Active and the webhook URL is correct.';
+                }
+                
+                statusDiv.className = 'status-message show status-error';
+                statusDiv.innerHTML = `❌ ${errorMessage}`;
+            }
+        }
+
+        // Load Uploaded Files
+        function loadUploadedFiles() {
+            const files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+            const container = document.getElementById('uploaded-files-list');
+            const wrapper = document.getElementById('uploaded-files-container');
+
+            if (files.length === 0) {
+                wrapper.style.display = 'none';
+                return;
+            }
+
+            wrapper.style.display = 'block';
+
+            const categoryLabels = {
+                product: 'Product Info',
+                policy: 'Policy',
+                sales: 'Sales',
+                faq: 'FAQ',
+                manual: 'Manual'
+            };
+
+            const getFileIcon = (filename) => {
+                const ext = filename.split('.').pop().toLowerCase();
+                if (ext === 'pdf') return '📕';
+                if (ext === 'docx' || ext === 'doc') return '📘';
+                if (ext === 'txt') return '📄';
+                return '📁';
+            };
+
+            const formatSize = (bytes) => {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            };
+
+            container.innerHTML = files.map(file => `
+                <div class="file-item" data-id="${file.id}">
+                    <div class="file-info">
+                        <div class="file-icon">${getFileIcon(file.name)}</div>
+                        <div>
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-meta">${categoryLabels[file.category] || file.category} • ${formatSize(file.size)} • ${file.date}</div>
+                        </div>
+                    </div>
+                    <button class="file-remove" onclick="removeFile(${file.id})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove uploaded file
+        function removeFile(id) {
+            let files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+            files = files.filter(f => f.id !== id);
+            localStorage.setItem('uploadedFiles', JSON.stringify(files));
+            loadUploadedFiles();
+        }
+    </script>
+</body>
+</html>
